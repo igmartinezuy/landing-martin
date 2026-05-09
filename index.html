@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Martín Vieira Taroco — Escalá tu negocio</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
 <style>
   :root {
     --cream: #faf8f4;
@@ -26,6 +27,8 @@
   .nav-logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
   .nav-cta { background: var(--ink); color: var(--white); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 24px; cursor: pointer; transition: background 0.2s; text-decoration: none; display: inline-block; }
   .nav-cta:hover { background: var(--accent-dark); }
+
+  /* ── HERO ── */
   .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 120px 48px 80px; gap: 80px; max-width: 1280px; margin: 0 auto; }
   .hero-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 24px; }
   .hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--accent); }
@@ -37,6 +40,8 @@
   .proof-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--ink); display: block; }
   .proof-label { font-size: 12px; color: var(--ink-muted); font-weight: 500; letter-spacing: 0.04em; }
   .proof-divider { width: 1px; height: 40px; background: var(--border); }
+
+  /* ── FORM CARD ── */
   .form-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 48px 40px; box-shadow: 0 8px 48px rgba(26,23,20,0.08), 0 1px 2px rgba(26,23,20,0.04); position: relative; }
   .form-card::before { content: ''; position: absolute; top: 0; left: 40px; right: 40px; height: 3px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%); border-radius: 0 0 3px 3px; }
   .form-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
@@ -54,44 +59,69 @@
   .form-alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; margin-top: 16px; display: none; }
   .form-alert.error { background: #fef2f2; border: 1px solid #fecaca; color: var(--error); }
 
-  /* ── CALENDLY SECTION ── */
-  .calendly-section {
+  /* ── SUCCESS STATE en el card ── */
+  .success-card {
     display: none;
-    margin-top: 32px;
-    border-top: 1px solid var(--border);
-    padding-top: 28px;
-  }
-  .calendly-section.visible { display: block; }
-  .calendly-header {
     text-align: center;
-    margin-bottom: 20px;
+    padding: 20px 0;
   }
-  .calendly-header h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 6px;
-  }
-  .calendly-header p {
-    font-size: 13px;
-    color: var(--ink-muted);
-  }
-  .success-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  .success-card.visible { display: block; }
+  .success-icon {
+    width: 72px; height: 72px;
     background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--success);
+    border: 2px solid #bbf7d0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
+  }
+  .success-card h3 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .success-card p { font-size: 14px; color: var(--ink-muted); line-height: 1.6; }
+  .scroll-hint {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 24px;
+    font-size: 13px; font-weight: 600; color: var(--accent-dark);
+    animation: bounce 1.5s infinite;
+  }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+  /* ── CALENDLY FULL WIDTH SECTION ── */
+  .calendly-full {
+    display: none;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 80px 48px;
+  }
+  .calendly-full.visible { display: block; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .calendly-full-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .calendly-full-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .calendly-full-header .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 20px; padding: 6px 16px;
+    font-size: 12px; font-weight: 600; color: var(--success);
     margin-bottom: 16px;
   }
+  .calendly-full-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 3vw, 42px);
+    font-weight: 700; color: var(--ink);
+    margin-bottom: 12px; line-height: 1.2;
+  }
+  .calendly-full-header p { font-size: 16px; color: var(--ink-muted); font-weight: 300; }
+  #calendly-embed-full { min-height: 700px; }
 
-  .benefits { background: var(--white); padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  /* ── REST ── */
+  .benefits { background: var(--cream); padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
   .benefits-inner { max-width: 1280px; margin: 0 auto; }
   .section-label { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
   .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
@@ -101,7 +131,7 @@
   .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .benefit-item { background: var(--white); padding: 40px 32px; transition: background 0.2s; }
   .benefit-item:hover { background: var(--cream); }
-  .benefit-num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; color: var(--accent-light); line-height: 1; margin-bottom: 20px; letter-spacing: -0.03em; }
+  .benefit-num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; color: var(--accent-light); line-height: 1; margin-bottom: 20px; }
   .benefit-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 12px; line-height: 1.3; }
   .benefit-desc { font-size: 14px; color: var(--ink-muted); line-height: 1.7; font-weight: 300; }
   .testimonial-section { padding: 100px 48px; max-width: 1280px; margin: 0 auto; }
@@ -117,16 +147,16 @@
   .cta-bottom h2 { font-family: 'Playfair Display', serif; font-size: clamp(32px, 4vw, 52px); font-weight: 700; color: var(--white); margin-bottom: 16px; line-height: 1.2; }
   .cta-bottom h2 em { font-style: italic; color: var(--accent); }
   .cta-bottom p { font-size: 16px; color: rgba(255,255,255,0.6); margin-bottom: 40px; font-weight: 300; }
-  .btn-cta-large { background: var(--accent); color: var(--ink); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; padding: 18px 48px; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; letter-spacing: 0.02em; }
+  .btn-cta-large { background: var(--accent); color: var(--ink); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; padding: 18px 48px; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
   .btn-cta-large:hover { background: #d4b87e; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(200,169,110,0.4); }
   footer { background: var(--ink); border-top: 1px solid rgba(255,255,255,0.08); padding: 32px 48px; display: flex; align-items: center; justify-content: space-between; }
   footer .logo { font-family: 'Playfair Display', serif; font-size: 16px; color: rgba(255,255,255,0.5); }
   footer p { font-size: 12px; color: rgba(255,255,255,0.3); }
+
   @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   .animate { animation: fadeUp 0.6s ease forwards; opacity: 0; }
   .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeIn 0.4s ease forwards; }
+
   @media (max-width: 900px) {
     nav { padding: 16px 24px; }
     .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; gap: 48px; }
@@ -136,6 +166,7 @@
     .testimonial-section { padding: 60px 24px; }
     .testimonial-grid { grid-template-columns: 1fr; }
     .cta-bottom { padding: 60px 24px; }
+    .calendly-full { padding: 60px 24px; }
     footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
     .form-row { grid-template-columns: 1fr; }
     .form-card { padding: 32px 24px; }
@@ -149,6 +180,7 @@
   <a href="#form" class="nav-cta">Quiero escalar</a>
 </nav>
 
+<!-- HERO -->
 <section>
   <div class="hero">
     <div class="hero-content">
@@ -164,8 +196,10 @@
       </div>
     </div>
 
+    <!-- FORM CARD -->
     <div id="form" class="form-card animate delay-3">
-      <!-- FORM -->
+
+      <!-- Form fields -->
       <div id="form-content">
         <div class="form-title">Agendá tu diagnóstico</div>
         <div class="form-subtitle">Gratis · 20 minutos · Sin compromiso</div>
@@ -193,19 +227,31 @@
         <p class="form-privacy">🔒 Tus datos son privados y nunca serán compartidos con terceros.</p>
       </div>
 
-      <!-- CALENDLY EMBEBIDO -->
-      <div class="calendly-section" id="calendly-section">
-        <div class="calendly-header fade-in">
-          <div class="success-badge">✓ Datos registrados</div>
-          <h3>Ahora elegí tu horario</h3>
-          <p>Seleccioná el día y la hora que mejor te quede para la call de diagnóstico.</p>
-        </div>
-        <div id="calendly-embed"></div>
+      <!-- Success state -->
+      <div class="success-card" id="success-card">
+        <div class="success-icon">✓</div>
+        <h3>¡Tus datos fueron registrados!</h3>
+        <p>Ahora elegí el horario que mejor te quede para la call de diagnóstico gratuita.</p>
+        <div class="scroll-hint">↓ Elegí tu horario abajo</div>
       </div>
+
     </div>
   </div>
 </section>
 
+<!-- CALENDLY FULL WIDTH -->
+<section class="calendly-full" id="calendly-full">
+  <div class="calendly-full-inner">
+    <div class="calendly-full-header">
+      <div class="badge">✓ Datos registrados — último paso</div>
+      <h2>Elegí el día y la hora de tu diagnóstico</h2>
+      <p>Call de 20 minutos · Gratis · Sin compromiso</p>
+    </div>
+    <div id="calendly-embed-full"></div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
 <section class="benefits">
   <div class="benefits-inner">
     <div class="benefits-header">
@@ -223,6 +269,7 @@
   </div>
 </section>
 
+<!-- TESTIMONIALS -->
 <section class="testimonial-section">
   <div class="section-label">Resultados reales</div>
   <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,3vw,40px);font-weight:700;color:var(--ink);max-width:500px;line-height:1.2;margin-bottom:8px">Lo que dicen quienes ya pasaron por el diagnóstico</h2>
@@ -233,6 +280,7 @@
   </div>
 </section>
 
+<!-- CTA -->
 <section class="cta-bottom">
   <h2>¿Tu negocio puede dar <em>el siguiente salto?</em></h2>
   <p>Averigualo en una call de 20 minutos. Sin costo, sin compromiso.</p>
@@ -244,10 +292,7 @@
   <p>© 2026 · Todos los derechos reservados</p>
 </footer>
 
-<!-- Calendly widget script -->
-<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
 <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
-
 <script>
   var CRM_WEBHOOK_URL = 'https://crm-martin.onrender.com/api/webhook/form';
   var CALENDLY_URL = 'https://calendly.com/ignacio-martinez7991/diagnostico-gratis-15-min';
@@ -279,37 +324,40 @@
       console.warn('CRM webhook error:', e);
     }
 
-    showCalendly(nombre, email);
+    showSuccess(nombre, email);
   }
 
-  function showCalendly(nombre, email) {
-    // Hide form fields, keep card visible
+  function showSuccess(nombre, email) {
+    // Show success state in card
     document.getElementById('form-content').style.display = 'none';
+    document.getElementById('success-card').classList.add('visible');
 
-    // Show calendly section
-    var section = document.getElementById('calendly-section');
+    // Show and populate Calendly section
+    var section = document.getElementById('calendly-full');
     section.classList.add('visible');
 
-    // Scroll to it smoothly
+    // Scroll to Calendly after short delay
     setTimeout(function() {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    }, 400);
 
-    // Init Calendly inline widget with prefill
-    var embedEl = document.getElementById('calendly-embed');
+    // Init Calendly widget
+    var embedEl = document.getElementById('calendly-embed-full');
     embedEl.innerHTML = '';
 
-    if (window.Calendly) {
-      Calendly.initInlineWidget({
-        url: CALENDLY_URL + '?hide_gdpr_banner=1',
-        parentElement: embedEl,
-        prefill: { name: nombre, email: email },
-        utm: {}
-      });
-    } else {
-      // Fallback: iframe if widget script not loaded yet
-      embedEl.innerHTML = '<iframe src="' + CALENDLY_URL + '?name=' + encodeURIComponent(nombre) + '&email=' + encodeURIComponent(email) + '&hide_gdpr_banner=1" width="100%" height="700" frameborder="0"></iframe>';
+    function initCalendly() {
+      if (window.Calendly) {
+        Calendly.initInlineWidget({
+          url: CALENDLY_URL + '?hide_gdpr_banner=1&hide_landing_page_details=1',
+          parentElement: embedEl,
+          prefill: { name: nombre, email: email },
+          utm: {}
+        });
+      } else {
+        setTimeout(initCalendly, 500);
+      }
     }
+    initCalendly();
   }
 
   function showError(msg) {
