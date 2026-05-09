@@ -52,9 +52,12 @@
   .form-group input:focus, .form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,169,110,0.15); background: var(--white); }
   .form-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a9490' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 44px; cursor: pointer; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .btn-submit { width: 100%; background: var(--ink); color: var(--white); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 16px; cursor: pointer; transition: all 0.2s; margin-top: 8px; letter-spacing: 0.02em; }
+  .btn-submit { width: 100%; background: var(--ink); color: var(--white); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 16px; cursor: pointer; transition: all 0.2s; margin-top: 8px; letter-spacing: 0.02em; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .btn-submit:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(168,137,78,0.3); }
-  .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+  .btn-submit:disabled { background: var(--accent-dark); opacity: 1; cursor: not-allowed; transform: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; display: none; }
+  .btn-submit.loading .spinner { display: block; }
   .form-privacy { font-size: 11px; color: var(--ink-muted); text-align: center; margin-top: 14px; line-height: 1.5; }
   .form-alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; margin-top: 16px; display: none; }
   .form-alert.error { background: #fef2f2; border: 1px solid #fecaca; color: var(--error); }
@@ -88,37 +91,43 @@
   /* ── CALENDLY FULL WIDTH SECTION ── */
   .calendly-full {
     display: none;
-    background: var(--white);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 80px 48px;
+    background: #1a1714;
+    padding: 80px 0 0 0;
   }
   .calendly-full.visible { display: block; animation: fadeIn 0.5s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
   .calendly-full-inner {
-    max-width: 1280px;
+    max-width: 100%;
     margin: 0 auto;
   }
   .calendly-full-header {
     text-align: center;
     margin-bottom: 48px;
+    padding: 0 48px;
   }
   .calendly-full-header .badge {
     display: inline-flex; align-items: center; gap: 8px;
-    background: #f0fdf4; border: 1px solid #bbf7d0;
+    background: rgba(200,169,110,0.15); border: 1px solid rgba(200,169,110,0.3);
     border-radius: 20px; padding: 6px 16px;
-    font-size: 12px; font-weight: 600; color: var(--success);
+    font-size: 12px; font-weight: 600; color: var(--accent);
     margin-bottom: 16px;
   }
   .calendly-full-header h2 {
     font-family: 'Playfair Display', serif;
     font-size: clamp(28px, 3vw, 42px);
-    font-weight: 700; color: var(--ink);
+    font-weight: 700; color: var(--white);
     margin-bottom: 12px; line-height: 1.2;
   }
-  .calendly-full-header p { font-size: 16px; color: var(--ink-muted); font-weight: 300; }
-  #calendly-embed-full { min-height: 700px; }
+  .calendly-full-header p { font-size: 16px; color: rgba(255,255,255,0.5); font-weight: 300; }
+  #calendly-embed-full {
+    min-height: 750px;
+    width: 100%;
+  }
+  #calendly-embed-full .calendly-inline-widget {
+    min-width: 100% !important;
+    width: 100% !important;
+  }
 
   /* ── REST ── */
   .benefits { background: var(--cream); padding: 100px 48px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -222,7 +231,7 @@
           </select>
         </div>
         <div class="form-group"><label>¿A qué se dedica tu negocio?</label><input type="text" id="f-negocio" placeholder="E-commerce, servicios, agencia..."></div>
-        <button class="btn-submit" id="btn-submit" onclick="submitForm()">Reservar mi diagnóstico gratuito →</button>
+        <button class="btn-submit" id="btn-submit" onclick="submitForm()"><div class="spinner" id="spinner"></div><span id="btn-text">Reservar mi diagnóstico gratuito →</span></button>
         <div class="form-alert error" id="form-error"></div>
         <p class="form-privacy">🔒 Tus datos son privados y nunca serán compartidos con terceros.</p>
       </div>
@@ -295,6 +304,41 @@
 <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 <script>
   var CRM_WEBHOOK_URL = 'https://crm-martin.onrender.com/api/webhook/form';
+  var CRM_PING_URL = 'https://crm-martin.onrender.com/api/ping';
+
+  // ── Keep server awake — ping every 14 minutes ──
+  function pingServer() {
+    fetch(CRM_PING_URL, { method: 'GET' })
+      .then(function() { console.log('Ping OK'); })
+      .catch(function() {});
+  }
+  pingServer();
+  setInterval(pingServer, 14 * 60 * 1000);
+
+  // ── Recover pending leads from localStorage ──
+  function recoverPendingLeads() {
+    try {
+      var pending = JSON.parse(localStorage.getItem('crm_pending_leads') || '[]');
+      if (pending.length === 0) return;
+      console.log('Recuperando ' + pending.length + ' leads pendientes...');
+      var recovered = [];
+      var promises = pending.map(function(lead) {
+        return fetch(CRM_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lead)
+        }).then(function(res) {
+          if (res.ok) { console.log('Lead recuperado:', lead.email); }
+          else { recovered.push(lead); }
+        }).catch(function() { recovered.push(lead); });
+      });
+      Promise.all(promises).then(function() {
+        localStorage.setItem('crm_pending_leads', JSON.stringify(recovered));
+      });
+    } catch(e) {}
+  }
+  // Try to recover after 2 seconds (server might need to wake up)
+  setTimeout(recoverPendingLeads, 2000);
   var CALENDLY_URL = 'https://calendly.com/ignacio-martinez7991/diagnostico-gratis-15-min';
 
   async function submitForm() {
@@ -311,20 +355,48 @@
 
     var btn = document.getElementById('btn-submit');
     btn.disabled = true;
-    btn.textContent = 'Enviando...';
+    btn.classList.add('loading');
+    document.getElementById('btn-text').textContent = 'Procesando tu solicitud...';
     document.getElementById('form-error').style.display = 'none';
 
-    try {
-      await fetch(CRM_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, apellido, email, telefono, negocio: negocio || obstaculo, obstaculo, source: 'landing-form' })
-      });
-    } catch(e) {
-      console.warn('CRM webhook error:', e);
-    }
+    var leadData = { nombre, apellido, email, telefono, negocio: negocio || obstaculo, obstaculo, source: 'landing-form', timestamp: new Date().toISOString() };
 
-    showSuccess(nombre, email);
+    // Timeout controller — max 3 seconds
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function() { controller.abort(); }, 3000);
+
+    fetch(CRM_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(leadData),
+      signal: controller.signal
+    })
+    .then(function(res) {
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('CRM error');
+    })
+    .catch(function(e) {
+      clearTimeout(timeoutId);
+      // Save to localStorage as backup
+      try {
+        var pending = JSON.parse(localStorage.getItem('crm_pending_leads') || '[]');
+        pending.push(leadData);
+        localStorage.setItem('crm_pending_leads', JSON.stringify(pending));
+        console.warn('Lead guardado en backup local:', e.message);
+      } catch(storageErr) {
+        console.warn('No se pudo guardar backup:', storageErr);
+      }
+    })
+    .finally(function() {
+      showSuccess(nombre, email);
+    });
+
+    // Safety fallback — show Calendly after 3.2s regardless
+    setTimeout(function() {
+      if (document.getElementById('form-content').style.display !== 'none') {
+        showSuccess(nombre, email);
+      }
+    }, 3200);
   }
 
   function showSuccess(nombre, email) {
@@ -348,11 +420,21 @@
     function initCalendly() {
       if (window.Calendly) {
         Calendly.initInlineWidget({
-          url: CALENDLY_URL + '?hide_gdpr_banner=1&hide_landing_page_details=1',
+          url: CALENDLY_URL + '?hide_gdpr_banner=1&hide_landing_page_details=1&background_color=1a1714&text_color=faf8f4&primary_color=c8a96e',
           parentElement: embedEl,
           prefill: { name: nombre, email: email },
           utm: {}
         });
+        // Force full width after init
+        setTimeout(function() {
+          var iframe = embedEl.querySelector('iframe');
+          if (iframe) {
+            iframe.style.width = '100%';
+            iframe.style.minWidth = '100%';
+            iframe.style.height = '750px';
+            iframe.style.border = 'none';
+          }
+        }, 1000);
       } else {
         setTimeout(initCalendly, 500);
       }
